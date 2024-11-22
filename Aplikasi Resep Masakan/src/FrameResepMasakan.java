@@ -1,3 +1,11 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -119,6 +127,11 @@ public class FrameResepMasakan extends javax.swing.JFrame {
         btnSimpan.setBackground(new java.awt.Color(102, 153, 255));
         btnSimpan.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnSimpan.setText("Simpan Resep");
+        btnSimpan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSimpanActionPerformed(evt);
+            }
+        });
 
         btnHapus.setBackground(new java.awt.Color(102, 153, 255));
         btnHapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -159,6 +172,11 @@ public class FrameResepMasakan extends javax.swing.JFrame {
         btnImport.setBackground(new java.awt.Color(153, 255, 153));
         btnImport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnImport.setText("Impor Resep");
+        btnImport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportActionPerformed(evt);
+            }
+        });
 
         btnExport.setBackground(new java.awt.Color(153, 255, 153));
         btnExport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -287,24 +305,163 @@ public class FrameResepMasakan extends javax.swing.JFrame {
     }//GEN-LAST:event_txtPorsiActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        DefaultTableModel model = (DefaultTableModel) TabelResep.getModel(); // Mengambil model dari tabel yang ditampilkan
+        int selectedRow = TabelResep.getSelectedRow(); // Mendapatkan indeks baris yang saat ini dipilih oleh pengguna
+
+        // Memeriksa apakah ada baris yang dipilih
+        if (selectedRow != -1) { // Memastikan bahwa pengguna telah memilih baris yang valid
+            model.removeRow(selectedRow); // Menghapus baris yang dipilih dari model tabel
+            JOptionPane.showMessageDialog(null, "Resep berhasil dihapus."); // Menampilkan pesan sukses setelah penghapusan
+        } else {
+            JOptionPane.showMessageDialog(null, "Pilih resep yang ingin dihapus."); // Menampilkan pesan kesalahan jika tidak ada baris yang dipilih
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_btnHapusActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+        batal();
         // TODO add your handling code here:
     }//GEN-LAST:event_btnBatalActionPerformed
 
     private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
+        System.exit(0); //Menutup aplikasi
         // TODO add your handling code here:
     }//GEN-LAST:event_btnKeluarActionPerformed
 
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        JFileChooser fileChooser = new JFileChooser(); // Membuat instance JFileChooser untuk memilih lokasi dan nama file untuk menyimpan
+        fileChooser.setDialogTitle("Simpan File Resep"); // Mengatur judul dialog untuk menyimpan file
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt")); // Mengatur filter untuk hanya menampilkan file dengan ekstensi .txt
+        int result = fileChooser.showSaveDialog(null); // Menampilkan dialog untuk menyimpan file dan menyimpan hasilnya dalam variabel result
+        if (result == JFileChooser.APPROVE_OPTION) { // Memeriksa apakah pengguna menekan tombol "OK" untuk menyimpan file
+            File file = fileChooser.getSelectedFile(); // Mendapatkan file yang dipilih oleh pengguna
+            if (!file.getName().endsWith(".txt")) { // Memeriksa apakah nama file tidak diakhiri dengan .txt
+                file = new File(file.getAbsolutePath() + ".txt"); // Menambahkan .txt ke nama file jika tidak ada
+            }
+            try (FileOutputStream fos = new FileOutputStream(file)) { // Menggunakan try-with-resources untuk memastikan FileOutputStream ditutup secara otomatis
+                DefaultTableModel model = (DefaultTableModel) TabelResep.getModel(); // Mengambil model dari tabel resep
+                for (int i = 0; i < model.getRowCount(); i++) { // Mengiterasi setiap baris di model tabel
+                    StringBuilder row = new StringBuilder(); // Menggunakan StringBuilder untuk efisiensi dalam membangun string
+                    for (int j = 0; j < model.getColumnCount(); j++) { // Mengiterasi setiap kolom di baris
+                        row.append(model.getValueAt(i, j).toString().replace("\n", " ")) // Mengganti newline dengan spasi
+                           .append("\t"); // Menambahkan tab sebagai pemisah antar kolom
+                    }
+                    fos.write((row.toString().trim() + "\n").getBytes()); // Menulis baris ke file, trim untuk menghilangkan spasi di akhir
+                }
+                JOptionPane.showMessageDialog(null, "Data Resep Berhasil Diekspor ke File Teks!"); // Menampilkan pesan sukses setelah data berhasil diekspor
+            } catch (IOException ex) { // Menangani kesalahan jika terjadi IOException
+                JOptionPane.showMessageDialog(null, "Terjadi Kesalahan: " + ex.getMessage()); // Menampilkan pesan kesalahan
+            }
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_btnExportActionPerformed
 
     private void btnUbahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahActionPerformed
+        // Mengambil model dari tabel yang ditampilkan
+        DefaultTableModel model = (DefaultTableModel) TabelResep.getModel(); // Mendapatkan model tabel dari TabelResep
+
+        // Mendapatkan indeks baris yang saat ini dipilih oleh pengguna
+        int selectedRow = TabelResep.getSelectedRow(); // Mengambil indeks baris yang dipilih
+
+        // Memeriksa apakah ada baris yang dipilih
+        if (selectedRow != -1) { // Memeriksa apakah indeks yang dipilih valid (tidak -1)
+            txtNama.setText(model.getValueAt(selectedRow, 0).toString()); // Mengisi field txtNama dengan nilai dari kolom pertama
+            cmbKategori.setSelectedItem(model.getValueAt(selectedRow, 1).toString()); // Mengatur item terpilih di cmbKategori dengan nilai dari kolom kedua
+            txtBahan.setText(model.getValueAt(selectedRow, 2).toString()); // Mengisi field txtBahan dengan nilai dari kolom ketiga
+            txtCara.setText(model.getValueAt(selectedRow, 3).toString()); // Mengisi field txtCara dengan nilai dari kolom keempat
+            txtWaktu.setText(model.getValueAt(selectedRow, 4).toString()); // Mengisi field txtWaktu dengan nilai dari kolom kelima
+            txtPorsi.setText(model.getValueAt(selectedRow, 5).toString()); // Mengisi field txtPorsi dengan nilai dari kolom keenam
+            txtDitulis.setText(model.getValueAt(selectedRow, 6).toString()); // Mengisi field txtDitulis dengan nilai dari kolom ketujuh
+
+            // Menampilkan pesan dialog untuk memberi tahu pengguna bahwa mereka dapat mengedit data
+            JOptionPane.showMessageDialog(null, "Edit data sesuai kebutuhan, lalu klik Simpan."); 
+        } else {
+            // Menampilkan pesan kesalahan jika tidak ada baris yang dipilih
+            JOptionPane.showMessageDialog(null, "Pilih resep yang ingin diedit."); 
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_btnUbahActionPerformed
+
+    private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
+        // Mengambil model dari tabel resep
+        DefaultTableModel model = (DefaultTableModel) TabelResep.getModel();
+        // Mengambil indeks baris yang sedang dipilih
+        int selectedRow = TabelResep.getSelectedRow(); 
+
+        // Validasi input untuk memastikan semua kolom diisi
+        boolean isInputValid = !txtNama.getText().trim().isEmpty() && // Memeriksa nama
+                               cmbKategori.getSelectedItem() != null && // Memeriksa kategori
+                               !cmbKategori.getSelectedItem().toString().isEmpty() && // Memeriksa kategori tidak kosong
+                               !txtBahan.getText().trim().isEmpty() && // Memeriksa bahan
+                               !txtCara.getText().trim().isEmpty() && // Memeriksa cara
+                               !txtWaktu.getText().trim().isEmpty() && // Memeriksa waktu
+                               !txtPorsi.getText().trim().isEmpty() && // Memeriksa porsi
+                               !txtDitulis.getText().trim().isEmpty(); // Memeriksa yang ditulis
+
+        // Jika input tidak valid, tampilkan pesan kesalahan
+        if (!isInputValid) {
+            JOptionPane.showMessageDialog(null, "Semua kolom harus diisi!");
+            return; // Keluar dari fungsi jika ada kolom yang kosong
+        }
+
+        // Mengambil nilai dari input untuk digunakan dalam pembaruan atau penambahan
+        String nama = txtNama.getText(); // Mengambil nama resep
+        String kategori = cmbKategori.getSelectedItem().toString(); // Mengambil kategori resep
+        String bahan = txtBahan.getText(); // Mengambil bahan resep
+        String cara = txtCara.getText(); // Mengambil cara pembuatan resep
+        String waktu = txtWaktu.getText(); // Mengambil waktu pembuatan resep
+        String porsi = txtPorsi.getText(); // Mengambil porsi resep
+        String ditulis = txtDitulis.getText(); // Mengambil nama penulis resep
+
+        // Memeriksa apakah ada baris yang dipilih untuk diperbarui
+        if (selectedRow != -1) {
+            // Jika ada, perbarui data di baris yang dipilih
+            model.setValueAt(nama, selectedRow, 0); // Memperbarui nama
+            model.setValueAt(kategori, selectedRow, 1); // Memperbarui kategori
+            model.setValueAt(bahan, selectedRow, 2); // Memperbarui bahan
+            model.setValueAt(cara, selectedRow, 3); // Memperbarui cara
+            model.setValueAt(waktu, selectedRow, 4); // Memperbarui waktu
+            model.setValueAt(porsi, selectedRow, 5); // Memperbarui porsi
+            model.setValueAt(ditulis, selectedRow, 6); // Memperbarui nama penulis
+            // Menampilkan pesan bahwa resep berhasil diperbarui
+            JOptionPane.showMessageDialog(null, "Resep berhasil diperbarui!");
+        } else {
+            // Jika tidak ada baris yang dipilih, tambahkan baris baru ke tabel
+            model.addRow(new Object[]{nama, kategori, bahan, cara, waktu, porsi, ditulis});
+            // Menampilkan pesan bahwa resep berhasil ditambahkan
+            JOptionPane.showMessageDialog(null, "Resep berhasil ditambahkan!");
+        }
+
+        // Panggil fungsi batal untuk mereset input setelah selesai
+        batal();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSimpanActionPerformed
+
+    private void btnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportActionPerformed
+        JFileChooser fileChooser = new JFileChooser(); // Membuat instance JFileChooser untuk memilih file yang akan diimpor
+        fileChooser.setDialogTitle("Buka File Resep"); // Mengatur judul dialog untuk membuka file
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt")); // Mengatur filter untuk hanya menampilkan file dengan ekstensi .txt
+        int result = fileChooser.showOpenDialog(null); // Menampilkan dialog untuk membuka file dan menyimpan hasilnya dalam variabel result
+        if (result == JFileChooser.APPROVE_OPTION) { // Memeriksa apakah pengguna menekan tombol "OK" untuk membuka file
+            File file = fileChooser.getSelectedFile(); // Mendapatkan file yang dipilih oleh pengguna
+            try (FileInputStream fis = new FileInputStream(file)) { // Menggunakan try-with-resources untuk memastikan FileInputStream ditutup secara otomatis
+                DefaultTableModel model = (DefaultTableModel) TabelResep.getModel(); // Mengambil model dari tabel resep
+                byte[] data = fis.readAllBytes(); // Membaca semua byte dari file
+                String content = new String(data); // Mengonversi byte menjadi string
+                String[] rows = content.split("\n"); // Memisahkan konten menjadi baris berdasarkan newline
+                for (String row : rows) { // Mengiterasi setiap baris yang dipisahkan
+                    if (!row.trim().isEmpty()) { // Memastikan baris tidak kosong setelah di-trim
+                        String[] columns = row.split("\t"); // Memisahkan kolom menggunakan tab sebagai pemisah
+                        model.addRow(columns); // Menambahkan baris baru ke model tabel
+                    }
+                }
+                JOptionPane.showMessageDialog(null, "Data Resep Berhasil Diimpor dari File Teks!"); // Menampilkan pesan sukses setelah data berhasil diimpor
+            } catch (IOException ex) { // Menangani kesalahan jika terjadi IOException
+                JOptionPane.showMessageDialog(null, "Terjadi Kesalahan: " + ex.getMessage()); // Menampilkan pesan kesalahan
+            }
+        }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnImportActionPerformed
 
     /**
      * @param args the command line arguments
@@ -371,4 +528,15 @@ public class FrameResepMasakan extends javax.swing.JFrame {
     private javax.swing.JTextField txtPorsi;
     private javax.swing.JTextField txtWaktu;
     // End of variables declaration//GEN-END:variables
+
+    private void batal() {
+        txtNama.setText(""); // Mengosongkan field txtNama
+        cmbKategori.setSelectedIndex(0); // Mengatur combo box cmbKategori ke item pertama (indeks 0)
+        txtBahan.setText(""); // Mengosongkan field txtBahan
+        txtCara.setText(""); // Mengosongkan field txtCara
+        txtWaktu.setText(""); // Mengosongkan field txtWaktu
+        txtPorsi.setText(""); // Mengosongkan field txtPorsi
+        txtDitulis.setText(""); // Mengosongkan field txtDitulis
+        TabelResep.clearSelection(); // Menghapus seleksi pada tabel TabelResep
+    }
 }
