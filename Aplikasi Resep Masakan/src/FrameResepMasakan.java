@@ -111,7 +111,7 @@ public class FrameResepMasakan extends javax.swing.JFrame {
         jScrollPane2.setViewportView(txtCara);
 
         cmbKategori.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Makanan Utama", "Makanan Penutup", "Minuman Cemilan" }));
+        cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Makanan Utama", "Makanan Penutup", "Minuman ", "Cemilan" }));
 
         TabelResep.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         TabelResep.setModel(new javax.swing.table.DefaultTableModel(
